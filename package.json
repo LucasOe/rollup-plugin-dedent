@@ -1,6 +1,6 @@
 {
 	"name": "rollup-plugin-dedent",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A Rollup plugin to dedent multi-line string during build time",
 	"keywords": [
 		"rollup-plugin",

@@ -44,23 +44,43 @@ export function dedentPlugin(options: Options = {}) {
 				ecmaVersion: "latest",
 			});
 
+			let importSpecifier = "dedent";
 			traverse(ast, {
 				ImportDeclaration(path) {
 					if (!path.node) return;
 					if (is.literal(path.node.source, { value: "rollup-plugin-dedent" })) {
+						// Get correct importSpecifier if aliased
+						for (const specifier of path.node.specifiers) {
+							// Default export
+							if (is.importDefaultSpecifier(specifier)) {
+								importSpecifier = specifier.local.name;
+							}
+
+							// Named export
+							if (is.importSpecifier(specifier)) {
+								if (
+									is.identifier(specifier.imported, { name: "dedent" }) ||
+									is.identifier(specifier.imported, { name: "default" })
+								) {
+									importSpecifier = specifier.local.name;
+								}
+							}
+						}
+
+						// Remove import
 						magicString.remove(path.node.start, path.node.end);
 					}
 				},
 				TaggedTemplateExpression(path) {
 					if (!path.node) return;
 					const tag = path.node.tag;
-					if (is.identifier(tag, { name: "dedent" })) {
+					if (is.identifier(tag, { name: importSpecifier })) {
 						magicString.remove(tag.start, tag.end);
 
-						for (const element of path.node.quasi.quasis) {
-							const linesRaw = element.value.raw.split("\n");
+						for (const quasi of path.node.quasi.quasis) {
+							const linesRaw = quasi.value.raw.split("\n");
 							const dedentedLines = stripIndentation(linesRaw);
-							magicString.overwrite(element.start, element.end, dedentedLines);
+							magicString.overwrite(quasi.start, quasi.end, dedentedLines);
 						}
 					}
 				},
