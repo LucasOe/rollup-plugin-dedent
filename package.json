@@ -10,7 +10,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/LucasOe/rollup-plugin-dedent"
+		"url": "git+https://github.com/LucasOe/rollup-plugin-dedent.git"
 	},
 	"type": "module",
 	"main": "dist/index.js",
