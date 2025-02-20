@@ -4,6 +4,7 @@ import MagicString from "magic-string";
 import * as acorn from "acorn";
 import tsPlugin from "acorn-typescript";
 import type { TransformResult } from "rollup";
+import type { Node as AstNode } from "estree";
 
 declare module "estree" {
 	export interface BaseNodeWithoutComments {
@@ -74,6 +75,8 @@ export function dedentPlugin(options: Options = {}) {
 				TaggedTemplateExpression(path) {
 					if (!path.node) return;
 					const tag = path.node.tag;
+
+					// Tagged Template Expression using "dedent"
 					if (is.identifier(tag, { name: importSpecifier })) {
 						magicString.remove(tag.start, tag.end);
 
@@ -81,6 +84,23 @@ export function dedentPlugin(options: Options = {}) {
 							const linesRaw = quasi.value.raw.split("\n");
 							const dedentedLines = stripIndentation(linesRaw);
 							magicString.overwrite(quasi.start, quasi.end, dedentedLines);
+						}
+					}
+
+					// Triple Backticks
+					if (is.taggedTemplateExpression(tag)) {
+						const startTag = tag.tag;
+						const endTag = path.node.quasi;
+						// template string is surrounded by empty template literals
+						if (isEmptyTemplateLiteral(startTag) && isEmptyTemplateLiteral(endTag)) {
+							magicString.remove(startTag.start, startTag.end);
+							magicString.remove(endTag.start, endTag.end);
+
+							for (const quasi of tag.quasi.quasis) {
+								const linesRaw = quasi.value.raw.split("\n");
+								const dedentedLines = stripIndentation(linesRaw);
+								magicString.overwrite(quasi.start, quasi.end, dedentedLines);
+							}
 						}
 					}
 				},
@@ -98,6 +118,13 @@ export function dedentPlugin(options: Options = {}) {
 			};
 		},
 	};
+}
+
+function isEmptyTemplateLiteral(node: AstNode): boolean {
+	if (!is.templateLiteral(node)) return false;
+	if (node.quasis.length !== 1) return false;
+	if (is.templateElement(node.quasis[0], { value: { raw: "", cooked: "" } })) return false;
+	return true;
 }
 
 // This file includes code from [dmnd/dedent] (https://github.com/dmnd/dedent/)
