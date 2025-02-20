@@ -1,0 +1,37 @@
+{
+	"name": "rollup-plugin-dedent",
+	"version": "0.1.0",
+	"description": "A Rollup plugin to dedent multi-line string during build time",
+	"keywords": [
+		"rollup-plugin",
+		"dedent"
+	],
+	"author": "LucasOe",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/LucasOe/rollup-plugin-dedent"
+	},
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"clean": "rimraf dist",
+		"prebuild": "npm run clean",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@rollup/pluginutils": "^5.1.4",
+		"acorn-typescript": "^1.4.13",
+		"estree-toolkit": "^1.7.8",
+		"magic-string": "^0.30.17",
+		"typescript": "^5.7.3"
+	},
+	"devDependencies": {
+		"prettier": "^3.5.1",
+		"rimraf": "^6.0.1"
+	},
+	"peerDependencies": {
+		"rollup": "^4.34.8"
+	}
+}
