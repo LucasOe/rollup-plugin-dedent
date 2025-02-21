@@ -34,7 +34,7 @@ export default defineConfig({
 ```
 
 ```js
-import dedent from "dedent";
+import dedent from "rollup-plugin-dedent";
 
 function usageExample() {
 	const first = dedent`A string that gets so long you need to break it over
